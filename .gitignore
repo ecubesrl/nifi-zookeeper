@@ -1,0 +1,13 @@
+**/bin/
+**/target/
+**/.settings/
+**/.cache*
+**/.classpath
+**/.project
+**/project
+**/dependency-reduced-pom.xml
+**/.idea
+**/*.iml
+
+
+!.gitignore
