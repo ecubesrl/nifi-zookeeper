@@ -113,9 +113,11 @@ public class ZookeeperReader extends AbstractZookeeperProcessor {
                 byte[] value = conn.readZNode(context.getProperty(ZNODE_NAME).evaluateAttributeExpressions(flowFile).getValue());
 
                 if (value == null) {
+                    session.getProvenanceReporter().route(flowFile, ZNODE_NOT_FOUND);
                     session.transfer(flowFile, ZNODE_NOT_FOUND);
                 } else {
                     flowFile = session.putAttribute(flowFile, context.getProperty(OUTPUT_ATTRIBUTE_NAME).getValue(), new String(value));
+                    session.getProvenanceReporter().modifyAttributes(flowFile);
                     session.transfer(flowFile, SUCCESS);
                 }
                 break;

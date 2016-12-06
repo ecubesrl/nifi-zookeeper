@@ -137,14 +137,16 @@ public class ZookeeperList extends AbstractZookeeperProcessor {
         }
         final String outputFormat  = context.getProperty(OUTPUT_FORMAT).getValue();
         renewKerberosAuthenticationIfNeeded(context);
-        ThreadsafeZookeeperClient conn = ThreadsafeZookeeperClient.getConnection(context.getProperty(ZOOKEEPER_URL).getValue());
+        String zookeeperURL = context.getProperty(ZOOKEEPER_URL).getValue();
+        ThreadsafeZookeeperClient conn = ThreadsafeZookeeperClient.getConnection(zookeeperURL);
         int trials = 3;
         while(trials>0) {
             try {
-
-                List<String> list = conn.listZNode(context.getProperty(ZNODE_NAME).evaluateAttributeExpressions(flowFile).getValue());
+                String zNode = context.getProperty(ZNODE_NAME).evaluateAttributeExpressions(flowFile).getValue();
+                List<String> list = conn.listZNode(zNode);
 
                 if(list == null){
+                    session.getProvenanceReporter().route(flowFile, ZNODE_NOT_FOUND);
                     session.transfer(flowFile,ZNODE_NOT_FOUND);
                 }else {
                     switch (context.getProperty(DESTINATION).getValue()){
@@ -174,18 +176,19 @@ public class ZookeeperList extends AbstractZookeeperProcessor {
 
                                 }
                             });
+                            session.getProvenanceReporter().fetch(flowFile, zookeeperURL + zNode);
                             flowFile = session.putAttribute(flowFile, CoreAttributes.MIME_TYPE.key(), MIME_TYPE_MAP.get(outputFormat));
                             break;
                         case DESTINATION_ATTRIBUTE:
                             switch (outputFormat) {
                                 case "csv":
                                     StringBuilder sb = new StringBuilder();
-                                    boolean firstLine=true;
-                                    for(String zNode: list){
+                                    boolean firstLine = true;
+                                    for(String zN: list){
                                         if(!firstLine){
                                             sb.append(",");
                                         }
-                                        sb.append(zNode);
+                                        sb.append(zN);
                                         firstLine=false;
                                     }
                                     flowFile = session.putAttribute(flowFile, ATTIRUBTE_NAME, sb.toString());
@@ -196,11 +199,13 @@ public class ZookeeperList extends AbstractZookeeperProcessor {
                                 default:
                                     throw new InvalidClassException("Unrecognized output format.");
                             }
+                            session.getProvenanceReporter().modifyAttributes(flowFile);
                             break;
                         default:
                             throw new InvalidClassException("Unrecognized destination.");
 
                     }
+
 
                     session.transfer(flowFile, SUCCESS);
                 }

@@ -100,16 +100,19 @@ public class ZookeeperDelete extends AbstractZookeeperProcessor {
             return;
         }
         renewKerberosAuthenticationIfNeeded(context);
-        ThreadsafeZookeeperClient conn = ThreadsafeZookeeperClient.getConnection(context.getProperty(ZOOKEEPER_URL).getValue());
+        String zookeeperURL = context.getProperty(ZOOKEEPER_URL).getValue();
+        ThreadsafeZookeeperClient conn = ThreadsafeZookeeperClient.getConnection(zookeeperURL);
         int trials = 3;
         while(trials>0) {
             try {
-
-                boolean flag = conn.deleteZNode(context.getProperty(ZNODE_NAME).evaluateAttributeExpressions(flowFile).getValue());
+                String zNode = context.getProperty(ZNODE_NAME).evaluateAttributeExpressions(flowFile).getValue();
+                boolean flag = conn.deleteZNode(zNode);
 
                 if(flag){
+                    session.getProvenanceReporter().send(flowFile, zookeeperURL + zNode);
                     session.transfer(flowFile, SUCCESS);
                 }else {
+                    session.getProvenanceReporter().route(flowFile, ZNODE_NOT_FOUND);
                     session.transfer(flowFile,ZNODE_NOT_FOUND);
                 }
                 break;

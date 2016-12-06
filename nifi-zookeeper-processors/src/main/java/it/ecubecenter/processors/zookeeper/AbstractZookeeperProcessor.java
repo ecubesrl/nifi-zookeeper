@@ -82,7 +82,7 @@ public abstract class AbstractZookeeperProcessor extends AbstractProcessor {
         try {
             String keytabPath = context.getProperty(kerberosProperties.getKerberosKeytab()).getValue();
             String kerberosPrincipal = context.getProperty(kerberosProperties.getKerberosPrincipal()).getValue();
-            if(keytabPath.equals("") || kerberosPrincipal.equals("")){
+            if(keytabPath == null || kerberosPrincipal == null || keytabPath.equals("") || kerberosPrincipal.equals("")){
                 getLogger().info("Kerberos is not enabled, since principal and/or keytab properties are empty.");
                 return;
             }

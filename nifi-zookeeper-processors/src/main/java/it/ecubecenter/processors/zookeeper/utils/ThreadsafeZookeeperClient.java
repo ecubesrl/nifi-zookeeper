@@ -100,7 +100,7 @@ public class ThreadsafeZookeeperClient {
         if(stats!=null && failIfExists){
             return false;
         }else{
-            if (stats == null) return false;
+            createZNodeParentsIfNeeded(zNode);
             zoo.create(zNode,value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
         return true;
