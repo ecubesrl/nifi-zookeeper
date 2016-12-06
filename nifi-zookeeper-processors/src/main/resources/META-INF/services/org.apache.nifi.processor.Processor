@@ -16,3 +16,4 @@ it.ecubecenter.processors.zookeeper.ZookeeperList
 it.ecubecenter.processors.zookeeper.ZookeeperReader
 it.ecubecenter.processors.zookeeper.ZookeeperWriter
 it.ecubecenter.processors.zookeeper.ZookeeperDelete
+it.ecubecenter.processors.zookeeper.ZookeeperCreate

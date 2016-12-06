@@ -93,6 +93,19 @@ public class ThreadsafeZookeeperClient {
         return true;
     }
 
+    public synchronized boolean createZNode(String zNode, byte[] value, boolean failIfExists) throws KeeperException, InterruptedException, IOException {
+        connect();
+
+        Stat stats = zoo.exists(zNode, true);
+        if(stats!=null && failIfExists){
+            return false;
+        }else{
+            if (stats == null) return false;
+            zoo.create(zNode,value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        }
+        return true;
+    }
+
     private void createZNodeParentsIfNeeded(String znode) throws KeeperException, InterruptedException {
 
         String[] pathParts = znode.substring(1).split(UNIX_SEPARATOR);

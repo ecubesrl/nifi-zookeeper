@@ -33,7 +33,7 @@ import org.apache.nifi.processor.util.StandardValidators;
 
 import java.util.*;
 
-@Tags({"zookeeper","read","znode"})
+@Tags({"zookeeper","znode","read"})
 @CapabilityDescription("The processor reads data from Zookeeper, by specifying the zNode to be read.")
 @SeeAlso({ZookeeperList.class, ZookeeperWriter.class, ZookeeperDelete.class})
 @ReadsAttributes({@ReadsAttribute(attribute="", description="")})
